@@ -1,0 +1,40 @@
+
+aws = workspace.add_aws()
+
+nat = aws.add_nat_gateway(
+    name="nat_gateway",
+)
+
+load_balancer = aws.add_load_balancer(
+    name="load_balancer",
+    public=True,
+)
+
+postgres = aws.add_postgres(
+    name="postgres",
+)
+
+redis = aws.add_redis(
+    name="redis",
+)
+
+web = aws.add_auto_scaling_group(
+    name="web",
+    load_balancers=[load_balancer],
+    user_data={
+        "DATABASE_URL": postgres.database_url,
+        "REDIS_URL": redis.cache_url,
+    }
+)
+
+worker = aws.add_auto_scaling_group(
+    name="worker",
+    user_data={
+        "DATABASE_URL": postgres.database_url,
+        "REDIS_URL": redis.cache_url,
+    }
+)
+
+web_distribution = aws.add_web_distribution(
+    domains=['www.example.com'],
+)
