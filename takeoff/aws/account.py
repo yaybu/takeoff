@@ -1,5 +1,5 @@
 from touchdown.core.resource import Resource
-from touchdown.core import argument
+from touchdown.core import argument, plan
 
 from takeoff.workspace import Takeofffile
 
@@ -8,7 +8,13 @@ class Account(Resource):
 
     resource_name = "aws_account"
 
-    workspace = argument.Resource(Takeofffile)
+    root = argument.Resource(Takeofffile)
+
+
+class BuildWorkspace(plan.Plan):
+
+    name = "takeoff::build-workspace"
+    resource = Account
 
     def setup(self):
        self.keypair = aws.add_keypair(

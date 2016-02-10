@@ -1,5 +1,5 @@
 from touchdown.core.resource import Resource
-from touchdown.core import argument
+from touchdown.core import argument, plan
 
 from .environment import Environment
 
@@ -22,6 +22,11 @@ class Zone(Resource):
     )
 
     environment = argument.Resource(Environment)
+
+
+class BuildWorkspace(plan.Plan):
+
+    name = "takeoff::build-workspace"
 
     def setup(self):
         self.security_group = vpc.add_security_group(

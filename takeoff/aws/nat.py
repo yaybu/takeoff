@@ -1,6 +1,11 @@
-from .zone import Zone
+from . import zone
 
 
-class NatGateway(Zone):
+class NatGateway(zone.Zone):
 
     resource_name = "nat_gateway"
+
+
+class BuildWorkspace(zone.BuildWorkspace):
+
+    resource = NatGateway

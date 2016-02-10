@@ -1,15 +1,20 @@
 from touchdown.core.resource import Resource
 
-from .zone import Zone
+from . import zone
 
 
-class Postgres(Zone):
+class Postgres(zone.Zone):
 
     resource_name = "postgres"
 
     @property
     def database_url(self):
         pass
+
+
+class BuildWorkspace(zone.BuildWorkspace):
+
+    resource = Postgres
 
     def setup(self):
         self.database = aws.add_database(

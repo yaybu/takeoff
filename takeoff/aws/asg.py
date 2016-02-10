@@ -2,10 +2,10 @@ from touchdown.core.resource import Resource
 from touchdown.core import argument
 
 from .elb import LoadBalancer
-from .zone import Zone
+from . import zone
 
 
-class AutoScalingGroup(Zone):
+class AutoScalingGroup(zone.Zone):
 
     resource_name = "auto_scaling_group"
 
@@ -18,6 +18,11 @@ class AutoScalingGroup(Zone):
     )
 
     user_data = argument.Dict()
+
+
+class BuildWorkspace(zone.BuildWorkspace):
+
+    resource = AutoScalingGroup
 
     def setup(self):
         lc_kwargs = {}

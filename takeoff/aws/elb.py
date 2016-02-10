@@ -1,12 +1,17 @@
 from touchdown.core.resource import Resource
 from touchdown.core import argument
 
-from .zone import Zone
+from . import zone
 
 
-class LoadBalancer(Zone):
+class LoadBalancer(zone.Zone):
 
     resource_name = "load_balancer"
+
+
+class BuildWorkspace(zone.BuildWorkspace):
+
+    resource = LoadBalancer
 
     def setup(self):
         self.load_balancer = aws.add_load_balancer(

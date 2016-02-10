@@ -1,4 +1,3 @@
-
 account = workspace.add_aws_account()
 
 aws = account.add_environment()
