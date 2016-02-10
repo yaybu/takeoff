@@ -1,7 +1,12 @@
+from touchdown.core.resource import Resource
+from touchdown.core import argument
+
 from .zone import Zone
 
 
 class LoadBalancer(Zone):
+
+    resource_name = "load_balancer"
 
     def setup(self):
         self.load_balancer = aws.add_load_balancer(
@@ -20,7 +25,7 @@ class LoadBalancer(Zone):
             connection_draining=30,
         )
 
-        # FIXME: Add DNS record for load balancer???
+        # FIXME: Add DNS record for load balancer???
 
 
     def setup_cloudwatch_alarm(self):

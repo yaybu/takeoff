@@ -1,3 +1,4 @@
+from touchdown.core.resource import Resource
 from touchdown.core import argument
 
 from .environment import Environment

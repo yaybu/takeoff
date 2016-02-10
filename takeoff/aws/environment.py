@@ -1,10 +1,12 @@
-
+from touchdown.core.resource import Resource
 from touchdown.core import argument
 
 from .account import Account
 
 
 class Environment(Resource):
+
+    resource_name = "environment"
 
     name = argument.String()
     cidr_block = argument.IPNetwork()

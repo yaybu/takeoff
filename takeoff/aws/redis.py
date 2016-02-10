@@ -1,8 +1,16 @@
-
+from touchdown.core.resource import Resource
 from touchdown.core import argument
+
+from .zone import Zone
 
 
 class Redis(Zone):
+
+    resource_name = "redis"
+
+    @property
+    def cache_url(self):
+        pass
 
     def setup(self):
         super(Redis, self).setup()

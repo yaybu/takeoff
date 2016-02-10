@@ -1,8 +1,12 @@
+from touchdown.core.resource import Resource
+from touchdown.core import argument
 
 from takeoff.workspace import Takeofffile
 
 
 class Account(Resource):
+
+    resource_name = "aws_account"
 
     workspace = argument.Resource(Takeofffile)
 

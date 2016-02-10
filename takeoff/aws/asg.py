@@ -1,3 +1,5 @@
+from touchdown.core.resource import Resource
+from touchdown.core import argument
 
 from .elb import LoadBalancer
 from .zone import Zone
@@ -5,7 +7,7 @@ from .zone import Zone
 
 class AutoScalingGroup(Zone):
 
-    name = "auto_scaling_group"
+    resource_name = "auto_scaling_group"
 
     replacement_policy = argument.String(
         choices=['singleton', 'graceful'],
@@ -14,6 +16,8 @@ class AutoScalingGroup(Zone):
     load_balancers = argument.ResourceList(
         LoadBalancer,
     )
+
+    user_data = argument.Dict()
 
     def setup(self):
         lc_kwargs = {}

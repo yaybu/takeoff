@@ -1,5 +1,7 @@
 
-aws = workspace.add_aws()
+account = workspace.add_aws_account()
+
+aws = account.add_environment()
 
 nat = aws.add_nat_gateway(
     name="nat_gateway",
@@ -35,6 +37,6 @@ worker = aws.add_auto_scaling_group(
     }
 )
 
-web_distribution = aws.add_web_distribution(
-    domains=['www.example.com'],
-)
+#web_distribution = aws.add_web_distribution(
+#    domains=['www.example.com'],
+#)
