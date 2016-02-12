@@ -1,0 +1,26 @@
+language: python
+python:
+  - "2.7"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+
+# The version of pypy on Travis is too old for cryptography
+#  - "pypy"
+
+sudo: false
+
+cache:
+  directories:
+    - $HOME/wheelhouse
+
+install:
+  - pip wheel --find-links=$HOME/wheelhouse -r requirements.txt --wheel-dir=$HOME/wheelhouse
+  - pip install --no-index --find-links=$HOME/wheelhouse -r requirements.txt
+
+script:
+  - coverage run $(which py.test) takeoff
+  - flake8 takeoff
+
+after_success:
+  - codecov
