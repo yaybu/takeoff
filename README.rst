@@ -1,30 +1,30 @@
 =========
-Touchdown
+Takeoff
 =========
 
-.. image:: https://img.shields.io/travis/yaybu/touchdown/master.svg
-   :target: https://travis-ci.org/#!/yaybu/touchdown
+.. image:: https://img.shields.io/travis/yaybu/takeoff/master.svg
+   :target: https://travis-ci.org/#!/yaybu/takeoff
 
-.. image:: https://img.shields.io/appveyor/ci/yaybu/touchdown/master.svg
-   :target: https://ci.appveyor.com/project/yaybu/touchdown
+.. image:: https://img.shields.io/appveyor/ci/yaybu/takeoff/master.svg
+   :target: https://ci.appveyor.com/project/yaybu/takeoff
 
-.. image:: https://img.shields.io/codecov/c/github/yaybu/touchdown/master.svg
-   :target: https://codecov.io/github/yaybu/touchdown?ref=master
+.. image:: https://img.shields.io/codecov/c/github/yaybu/takeoff/master.svg
+   :target: https://codecov.io/github/yaybu/takeoff?ref=master
 
-.. image:: https://img.shields.io/pypi/v/touchdown.svg
-   :target: https://pypi.python.org/pypi/touchdown/
+.. image:: https://img.shields.io/pypi/v/takeoff.svg
+   :target: https://pypi.python.org/pypi/takeoff/
 
 .. image:: https://img.shields.io/badge/docs-latest-green.svg
-   :target: http://docs.yaybu.com/projects/touchdown/en/latest/
+   :target: http://docs.yaybu.com/projects/takeoff/en/latest/
 
 
-Touchdown is a service orchestration framework for python. It provides a python
+Takeoff is a service orchestration framework for python. It provides a python
 "DSL" for declaring complicated cloud infrastructures and provisioning those
 blueprints in an idempotent way.
 
 You can find us in #yaybu on irc.oftc.net.
 
-Here is an example ``Touchdownfile``::
+Here is an example ``Takeofffile``::
 
     aws = workspace.add_aws(
         region='eu-west-1',
@@ -49,4 +49,4 @@ Here is an example ``Touchdownfile``::
 
 You can then apply this configuration with::
 
-    touchdown apply
+    takeoff apply
