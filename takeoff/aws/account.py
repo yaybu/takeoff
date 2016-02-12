@@ -1,3 +1,5 @@
+import json
+
 from touchdown.core.resource import Resource
 from touchdown.core import argument, plan
 
@@ -17,25 +19,28 @@ class BuildWorkspace(plan.Plan):
     resource = Account
 
     def setup(self):
-       self.keypair = aws.add_keypair(
-           name=self.name,
-       )
+        workspace = self.runner.get_service(self.resource.workspace, self.name).workspace
+        self.aws = workspace.add_aws()
 
-       self.vpc = aws.add_vpc(
+        self.keypair = self.aws.add_keypair(
             name=self.name,
-            cidr_block=self.cidr_block,
-       )
+        )
 
-       self.setup_cloudtrail_logs()
-       self.setup_cloudtrail()
-       self.setup_cloudtrail_metrics()
-       self.setup_cloudtrail_alarms()
+        self.vpc = self.aws.add_vpc(
+             name=self.name,
+             #cidr_block=self.cidr_block,
+        )
+
+        self.setup_cloudtrail_logs()
+        self.setup_cloudtrail()
+        self.setup_cloudtrail_metrics()
+        self.setup_cloudtrail_alarms()
 
     def setup_cloudtrail(self):
-        bucket_name = self.tenant_dashes(".".join((self.environment, self.domain, "cloudtrail")))
+        bucket_name = "cloudtrail"
+
         bucket = self.aws.add_bucket(
             name=bucket_name,
-            region=self.location,
             policy=json.dumps({
                 "Version": "2012-10-17",
                 "Statement": [
@@ -115,9 +120,9 @@ class BuildWorkspace(plan.Plan):
             cwlogs_role=role,
         )
 
-    def setup_cloudtail_logs(self):
-        self.log_groups[log_group] = self.aws.add_log_group(
-            name=log_group,
+    def setup_cloudtrail_logs(self):
+        self.cloudtrail_log = self.aws.add_log_group(
+            name="cloudtrail.log",
             retention=7,
         )
 
