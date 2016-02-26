@@ -1,5 +1,7 @@
 from touchdown.core.resource import Resource
+from touchdown.core import serializers
 
+from ..serializers import Property
 from . import zone
 
 
@@ -7,9 +9,8 @@ class Postgres(zone.Zone):
 
     resource_name = "postgres"
 
-    @property
-    def database_url(self):
-        pass
+    def get_property(self, name):
+        return Property(name, serializers.Const(self))
 
 
 class BuildWorkspace(zone.BuildWorkspace):
@@ -45,6 +46,10 @@ class BuildWorkspace(zone.BuildWorkspace):
                 subnets=self.subnets,
             )
         )
+
+        self.object = {
+            "Url": self.database.get_property("Endpoint")
+        }
 
         self.setup_cloudwatch_alarms(account)
 

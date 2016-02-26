@@ -1,3 +1,5 @@
+from touchdown.core import serializers
+
 account = workspace.add_aws_account()
 
 aws = account.add_environment(
@@ -29,19 +31,19 @@ redis = aws.add_redis(
 web = aws.add_auto_scaling_group(
     name="web",
     load_balancers=[load_balancer],
-    user_data={
-        "DATABASE_URL": postgres.database_url,
-        "REDIS_URL": redis.cache_url,
-    },
+    user_data=serializers.Dict(**{
+        "DATABASE_URL": postgres.get_property("Url"),
+        "REDIS_URL": redis.get_property("Url"),
+    }),
     cidr_block="10.30.0.0/24",
 )
 
 worker = aws.add_auto_scaling_group(
     name="worker",
-    user_data={
-        "DATABASE_URL": postgres.database_url,
-        "REDIS_URL": redis.cache_url,
-    },
+    user_data=serializers.Dict(**{
+        "DATABASE_URL": postgres.get_property("Url"),
+        "REDIS_URL": redis.get_property("Url"),
+    }),
     cidr_block="10.30.0.0/24",
 )
 
