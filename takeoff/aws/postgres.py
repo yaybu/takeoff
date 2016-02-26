@@ -46,8 +46,10 @@ class BuildWorkspace(zone.BuildWorkspace):
             )
         )
 
-    def setup_cloudwatch_alarms(self):
-        self.aws.add_alarm(
+        self.setup_cloudwatch_alarms(account)
+
+    def setup_cloudwatch_alarms(self, account):
+        self.database.add_dependency(account.aws.add_alarm(
             name='database-no-connections',
             namespace="AWS/RDS",
             metric="DatabaseConnections",
@@ -57,4 +59,4 @@ class BuildWorkspace(zone.BuildWorkspace):
             evaluation_periods=1,
             threshold=0,
             comparison_operator='LessThanOrEqualToThreshold',
-        )
+        ))

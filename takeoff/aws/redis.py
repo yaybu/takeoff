@@ -36,8 +36,10 @@ class BuildWorkspace(zone.BuildWorkspace):
             )
         )
 
-    def setup_cloudwatch_alarms(self):
-        self.aws.add_alarm(
+        self.setup_cloudwatch_alarms(account)
+
+    def setup_cloudwatch_alarms(self, account):
+        self.cache.add_dependency(account.aws.add_alarm(
             name='cache-no-connections',
             namespace="AWS/ElastiCache",
             metric="CurrConnections",
@@ -47,4 +49,4 @@ class BuildWorkspace(zone.BuildWorkspace):
             evaluation_periods=1,
             threshold=0,
             comparison_operator='LessThanOrEqualToThreshold',
-        )
+        ))

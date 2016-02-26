@@ -37,9 +37,10 @@ class BuildWorkspace(zone.BuildWorkspace):
 
         # FIXME: Add DNS record for load balancer???
 
+        self.setup_cloudwatch_alarms(account)
 
-    def setup_cloudwatch_alarm(self):
-        self.aws.add_alarm(
+    def setup_cloudwatch_alarms(self, account):
+        self.load_balancer.add_dependency(account.aws.add_alarm(
             name='balancer-not-enough-healthy-instances',
             namespace="AWS/ELB",
             metric="HealthyHostCount",
@@ -47,13 +48,13 @@ class BuildWorkspace(zone.BuildWorkspace):
             statistic='Minimum',
             period=60,
             evaluation_periods=1,
-            threshold=self.scaling_groups['application']['min'],
+            threshold=1,
             comparison_operator='LessThanThreshold',
-        )
+        ))
 
         # FIXME: Base period and evaluation on the ELB settings - this should help
         # avoid false positives?
-        self.aws.add_alarm(
+        self.load_balancer.add_dependency(account.aws.add_alarm(
             name='balancer-unhealthy-instances',
             namespace="AWS/ELB",
             metric="UnHealthyHostCount",
@@ -63,9 +64,9 @@ class BuildWorkspace(zone.BuildWorkspace):
             evaluation_periods=1,
             threshold=1,
             comparison_operator='GreaterThanOrEqualToThreshold',
-        )
+        ))
 
-        self.aws.add_alarm(
+        self.load_balancer.add_dependency(account.aws.add_alarm(
             name='balancer-high-latency',
             dimensions=[{"name": "LoadBalancerName", "value": "balancer"}],
             namespace="AWS/ELB",
@@ -75,9 +76,9 @@ class BuildWorkspace(zone.BuildWorkspace):
             evaluation_periods=1,
             threshold=1,
             comparison_operator='GreaterThanOrEqualToThreshold',
-        )
+        ))
 
-        self.aws.add_alarm(
+        self.load_balancer.add_dependency(account.aws.add_alarm(
             name='balancer-queue-length',
             namespace="AWS/ELB",
             metric="SurgeQueueLength",
@@ -87,9 +88,9 @@ class BuildWorkspace(zone.BuildWorkspace):
             evaluation_periods=1,
             threshold=0,
             comparison_operator='GreaterThanThreshold',
-        )
+        ))
 
-        self.aws.add_alarm(
+        self.load_balancer.add_dependency(account.aws.add_alarm(
             name='balancer-queue-spillover',
             namespace="AWS/ELB",
             metric="SpilloverCount",
@@ -99,4 +100,4 @@ class BuildWorkspace(zone.BuildWorkspace):
             evaluation_periods=1,
             threshold=0,
             comparison_operator='GreaterThanThreshold',
-        )
+        ))
