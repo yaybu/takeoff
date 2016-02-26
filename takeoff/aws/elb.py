@@ -14,7 +14,12 @@ class BuildWorkspace(zone.BuildWorkspace):
     resource = LoadBalancer
 
     def setup(self):
-        self.load_balancer = aws.add_load_balancer(
+        super(BuildWorkspace, self).setup()
+
+        env = self.runner.get_service(self.resource.environment, self.name)
+        account = self.runner.get_service(self.resource.environment.account, self.name)
+
+        self.load_balancer = account.aws.add_load_balancer(
             name='balancer',
             listeners=[{"port": 443, "instance_port": 8043, "instance_protocol": "TCP", "protocol": "TCP"}],
             subnets=self.subnets,

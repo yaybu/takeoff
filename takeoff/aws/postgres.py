@@ -17,26 +17,31 @@ class BuildWorkspace(zone.BuildWorkspace):
     resource = Postgres
 
     def setup(self):
-        self.database = aws.add_database(
-            name=self.name,
-            allocated_storage=self.get('scaling:database', 'storage', '10'),
-            instance_class=self.get('scaling:database', 'class', 'db.t1.micro'),
+        super(BuildWorkspace, self).setup()
+
+        env = self.runner.get_service(self.resource.environment, self.name)
+        account = self.runner.get_service(self.resource.environment.account, self.name)
+
+        self.database = account.aws.add_database(
+            name=self.resource.name,
+            allocated_storage='10',
+            instance_class='db.t1.micro',
             engine="postgres",
             engine_version="9.3.6",
             db_name=self.name,
             master_username="root",
-            master_password=self.get("postgres", "password"),
+            master_password="password",
             backup_retention_period=8,
             multi_az=True,
             auto_minor_version_upgrade=True,
-            iops=self.get('scaling:database', 'iops', None) or None,
-            publically_accessible=self.public,
-            storage_encrypted=self.get('scaling:database', 'encrypted', 'yes') == 'yes',
+            iops=None,
+            publically_accessible=self.resource.public,
+            storage_encrypted='no',
             storage_type="gp2",
             security_groups=[self.security_group],
-            subnet_group=aws.add_db_subnet_group(
-                name=self.name,
-                description="Subnet group for {!r}".format(self.name),
+            subnet_group=account.aws.add_db_subnet_group(
+                name=self.resource.name,
+                description="Subnet group for {!r}".format(self.resource.name),
                 subnets=self.subnets,
             )
         )

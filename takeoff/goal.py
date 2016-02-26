@@ -10,7 +10,6 @@ class BuildWorkspace(goals.Goal):
         depmap = list(dependencies.DependencyMap(self.workspace).all())
         workspace = self.get_service(self.workspace, "takeoff::build-workspace")
         workspace.setup()
-        for resource in depmap:
-            print resource
+        for resource in depmap[:-1]:
             self.get_service(resource, "takeoff::build-workspace").setup()
         return workspace.workspace

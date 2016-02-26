@@ -29,6 +29,10 @@ def main(argv=None):
 
     console.interactive = not args.unattended
 
+    if not hasattr(args, "func"):
+        parser.print_help()
+        return
+
     args.func(args)
 
 

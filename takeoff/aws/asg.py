@@ -9,6 +9,8 @@ class AutoScalingGroup(zone.Zone):
 
     resource_name = "auto_scaling_group"
 
+    name = argument.String()
+
     replacement_policy = argument.String(
         choices=['singleton', 'graceful'],
     )
@@ -25,25 +27,28 @@ class BuildWorkspace(zone.BuildWorkspace):
     resource = AutoScalingGroup
 
     def setup(self):
-        lc_kwargs = {}
-        if 'role' in group:
-            lc_kwargs['instance_profile'] = instance_profiles[group['role']]
+        super(BuildWorkspace, self).setup()
 
-        self.auto_scaling_group = aws.add_auto_scaling_group(
-            name=name,
-            launch_configuration=aws.add_launch_configuration(
-                name=name,
-                image=group['ami'],
-                instance_type=group['class'],
-                user_data=self.user_data(name, group),
-                key_pair=self.environment.keypair,
+        env = self.runner.get_service(self.resource.environment, self.name)
+        account = self.runner.get_service(self.resource.environment.account, self.name)
+
+        self.auto_scaling_group = account.aws.add_auto_scaling_group(
+            name=self.resource.name,
+            launch_configuration=account.aws.add_launch_configuration(
+                name=self.resource.name,
+                image='ami-123456',
+                instance_type="t2.micro",
+                #user_data=self.user_data(name, group),
+                key_pair=env.keypair,
                 security_groups=[self.security_group],
-                associate_public_ip_address=self.public,
-                **lc_kwargs
+                associate_public_ip_address=self.resource.public,
+                # instance_profile=...
             ),
-            min_size=group["min"],
-            max_size=group["max"],
-            replacement_policy=self.replacement_policy,
-            load_balancers=[lb.load_balancer for lb in self.load_balancers],
+            min_size=1,
+            max_size=1,
+            replacement_policy=self.resource.replacement_policy,
+            load_balancers=[
+                self.runner.get_service(lb, self.name).load_balancer for lb in self.resource.load_balancers
+            ],
             subnets=self.subnets,
         )

@@ -22,15 +22,6 @@ class BuildWorkspace(plan.Plan):
         workspace = self.runner.get_service(self.resource.workspace, self.name).workspace
         self.aws = workspace.add_aws()
 
-        self.keypair = self.aws.add_keypair(
-            name=self.name,
-        )
-
-        self.vpc = self.aws.add_vpc(
-             name=self.name,
-             #cidr_block=self.cidr_block,
-        )
-
         self.setup_cloudtrail_logs()
         self.setup_cloudtrail()
         self.setup_cloudtrail_metrics()
@@ -75,7 +66,8 @@ class BuildWorkspace(plan.Plan):
                             "arn:aws:iam::113285607260:root"
                         ]},
                         "Action": "s3:PutObject",
-                        "Resource": "arn:aws:s3:::{name}/AWSLogs/{account}/*".format(name=bucket_name, account=self.account),
+                        "Resource": "arn:aws:s3:::{name}/AWSLogs/*".format(name=bucket_name),
+                        #"Resource": "arn:aws:s3:::{name}/AWSLogs/{account}/*".format(name=bucket_name, account=self.account),
                         "Condition": {
                             "StringEquals": {"s3:x-amz-acl": "bucket-owner-full-control"}
                         }
@@ -95,7 +87,7 @@ class BuildWorkspace(plan.Plan):
                 }],
             },
             policies={
-                self.location: {
+                "push-logs": {
                     "Version": "2012-10-17",
                     "Statement": [{
                         "Effect": "Allow",
@@ -103,10 +95,11 @@ class BuildWorkspace(plan.Plan):
                             "logs:PutLogEvents",
                             "logs:CreateLogStream",
                         ],
-                        "Resource": ["arn:aws:logs:{location}:{account}:log-group:cloudtrail.log:log-stream:{account}_CloudTrail_{location}*".format(
-                            location=self.location,
-                            account=self.account,
-                        )],
+                        "Resource": ["arn:aws:logs:*:*:log-group:cloudtrail.log:log-stream:*_CloudTrail_*"],
+                        #"Resource": ["arn:aws:logs:{location}:{account}:log-group:cloudtrail.log:log-stream:{account}_CloudTrail_{location}*".format(
+                        #    location=self.location,
+                        #    account=self.account,
+                        #)],
                     }],
                 },
             },
@@ -116,7 +109,7 @@ class BuildWorkspace(plan.Plan):
             name="Default",  # we call it this to match the one the AWS console creates
             bucket=bucket,
             include_global=True,
-            cwlogs_group=self.log_groups['cloudtrail.log'],
+            cwlogs_group=self.cloudtrail_log,
             cwlogs_role=role,
         )
 
@@ -127,7 +120,7 @@ class BuildWorkspace(plan.Plan):
         )
 
     def setup_cloudtrail_metrics(self):
-        self.log_groups['cloudtrail.log'].add_filter(
+        self.cloudtrail_log.add_filter(
             name='security_group_changes',
             pattern='{ ($.eventName = AuthorizeSecurityGroupIngress) || ($.eventName = AuthorizeSecurityGroupEgress) || ($.eventName = RevokeSecurityGroupIngress) || ($.eventName = RevokeSecurityGroupEgress) || ($.eventName = CreateSecurityGroup) || ($.eventName = DeleteSecurityGroup) }',
             transformations=[{
@@ -137,7 +130,7 @@ class BuildWorkspace(plan.Plan):
             }]
         )
 
-        self.log_groups['cloudtrail.log'].add_filter(
+        self.cloudtrail_log.add_filter(
             name='network_acl_changes',
             pattern='{ ($.eventName = CreateNetworkAcl) || ($.eventName = CreateNetworkAclEntry) || ($.eventName = DeleteNetworkAcl) || ($.eventName = DeleteNetworkAclEntry) || ($.eventName = ReplaceNetworkAclEntry) || ($.eventName = ReplaceNetworkAclAssociation) }',
             transformations=[{
@@ -147,7 +140,7 @@ class BuildWorkspace(plan.Plan):
             }]
         )
 
-        self.log_groups['cloudtrail.log'].add_filter(
+        self.cloudtrail_log.add_filter(
             name='internet_gateway_changes',
             pattern='{ ($.eventName = CreateCustomerGateway) || ($.eventName = DeleteCustomerGateway) || ($.eventName = AttachInternetGateway) || ($.eventName = CreateInternetGateway) || ($.eventName = DeleteInternetGateway) || ($.eventName = DetachInternetGateway) }',
             transformations=[{
@@ -157,7 +150,7 @@ class BuildWorkspace(plan.Plan):
             }]
         )
 
-        self.log_groups['cloudtrail.log'].add_filter(
+        self.cloudtrail_log.add_filter(
             name='cloudtrail_changes',
             pattern='{ ($.eventName = CreateTrail) || ($.eventName = UpdateTrail) || ($.eventName = DeleteTrail) || ($.eventName = StartLogging) || ($.eventName = StopLogging) }',
             transformations=[{
@@ -167,7 +160,7 @@ class BuildWorkspace(plan.Plan):
             }]
         )
 
-        self.log_groups['cloudtrail.log'].add_filter(
+        self.cloudtrail_log.add_filter(
             name='signin_failures',
             pattern='{ ($.eventName = ConsoleLogin) && ($.errorMessage = "Failed authentication") }',
             transformations=[{
@@ -177,7 +170,7 @@ class BuildWorkspace(plan.Plan):
             }]
         )
 
-        self.log_groups['cloudtrail.log'].add_filter(
+        self.cloudtrail_log.add_filter(
             name='authorization_failures',
             pattern='{ ($.errorCode = "*UnauthorizedOperation") || ($.errorCode = "AccessDenied*") }',
             transformations=[{
@@ -187,7 +180,7 @@ class BuildWorkspace(plan.Plan):
             }]
         )
 
-        self.log_groups['cloudtrail.log'].add_filter(
+        self.cloudtrail_log.add_filter(
             name='iam_policy_changes',
             pattern='{($.eventName=DeleteGroupPolicy)||($.eventName=DeleteRolePolicy)||($.eventName=DeleteUserPolicy)||($.eventName=PutGroupPolicy)||($.eventName=PutRolePolicy)||($.eventName=PutUserPolicy)||($.eventName=CreatePolicy)||($.eventName=DeletePolicy)||($.eventName=CreatePolicyVersion)||($.eventName=DeletePolicyVersion)||($.eventName=AttachRolePolicy)||($.eventName=DetachRolePolicy)||($.eventName=AttachUserPolicy)||($.eventName=DetachUserPolicy)||($.eventName=AttachGroupPolicy)||($.eventName=DetachGroupPolicy)}',
             transformations=[{
@@ -209,7 +202,7 @@ class BuildWorkspace(plan.Plan):
         ]
 
         for alarm_name, metric_name in alarms:
-            self.aws.add_alarm(
+            alarm = self.aws.add_alarm(
                 name=alarm_name,
                 namespace="CloudTrail",
                 metric=metric_name,
@@ -219,3 +212,4 @@ class BuildWorkspace(plan.Plan):
                 threshold=1,
                 comparison_operator='GreaterThanOrEqualToThreshold',
             )
+            alarm.add_dependency(self.cloudtrail_log)

@@ -19,11 +19,12 @@ class BuildWorkspace(plan.Plan):
     resource = Environment
 
     def setup(self):
-       self.keypair = aws.add_keypair(
-           name=self.name,
-       )
+        parent = self.runner.get_service(self.resource.parent, self.name)
+        self.keypair = parent.aws.add_keypair(
+            name=self.resource.name,
+        )
 
-       self.vpc = aws.add_vpc(
-            name=self.name,
-            cidr_block=self.cidr_block,
-       )
+        self.vpc = parent.aws.add_vpc(
+            name=self.resource.name,
+            cidr_block=str(self.resource.cidr_block),
+        )

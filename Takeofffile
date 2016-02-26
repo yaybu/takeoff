@@ -1,22 +1,29 @@
 account = workspace.add_aws_account()
 
-aws = account.add_environment()
+aws = account.add_environment(
+    name="production",
+    cidr_block="10.30.0.0/20"
+)
 
 nat = aws.add_nat_gateway(
     name="nat_gateway",
+    cidr_block="10.30.0.0/24",
 )
 
 load_balancer = aws.add_load_balancer(
     name="load_balancer",
     public=True,
+    cidr_block="10.30.0.0/24",
 )
 
 postgres = aws.add_postgres(
     name="postgres",
+    cidr_block="10.30.0.0/24",
 )
 
 redis = aws.add_redis(
     name="redis",
+    cidr_block="10.30.0.0/24",
 )
 
 web = aws.add_auto_scaling_group(
@@ -25,7 +32,8 @@ web = aws.add_auto_scaling_group(
     user_data={
         "DATABASE_URL": postgres.database_url,
         "REDIS_URL": redis.cache_url,
-    }
+    },
+    cidr_block="10.30.0.0/24",
 )
 
 worker = aws.add_auto_scaling_group(
@@ -33,7 +41,8 @@ worker = aws.add_auto_scaling_group(
     user_data={
         "DATABASE_URL": postgres.database_url,
         "REDIS_URL": redis.cache_url,
-    }
+    },
+    cidr_block="10.30.0.0/24",
 )
 
 #web_distribution = aws.add_web_distribution(
