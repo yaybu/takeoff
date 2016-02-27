@@ -21,6 +21,13 @@ class AutoScalingGroup(zone.Zone):
 
     user_data = argument.Dict()
 
+    def clean_user_data(self, value):
+        value = serializers.Dict(**value)
+        for dep in value.dependencies(self):
+            if dep != self:
+                self.add_dependency(dep)
+        return value
+
 
 class BuildWorkspace(zone.BuildWorkspace):
 
