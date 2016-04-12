@@ -8,6 +8,8 @@ class LoadBalancer(zone.Zone):
 
     resource_name = "load_balancer"
 
+    prefix = argument.Integer(default=28)
+
 
 class BuildWorkspace(zone.BuildWorkspace):
 

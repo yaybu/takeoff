@@ -10,6 +10,8 @@ class Redis(zone.Zone):
 
     resource_name = "redis"
 
+    prefix = argument.Integer(default=28)
+
     def get_property(self, name):
         return Property(name, serializers.Const(self))
 

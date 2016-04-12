@@ -8,6 +8,8 @@ class Zone(Resource):
 
     name = argument.String()
 
+    prefix = argument.Integer(default=24)
+
     cidr_block = argument.IPNetwork()
 
     """ Is this zone on the public internet? """
