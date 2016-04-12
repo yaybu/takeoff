@@ -1,7 +1,6 @@
 import unittest
 import ipaddress
 
-from takeoff.ipallocator import IpAllocator
 
 class TestIpAllocator(unittest.TestCase):
 
@@ -9,8 +8,8 @@ class TestIpAllocator(unittest.TestCase):
         self.ipa = IpAllocator(ipaddress.ip_network(u'10.30.0.0/20'))
 
     def test_too_big(self):
-        self.assertRaises(ValueError, self.ipa.allocate, 'subnet1', 0) 
-        self.assertRaises(ValueError, self.ipa.allocate, 'subnet1', 19) 
+        self.assertRaises(ValueError, self.ipa.allocate, 'subnet1', 0)
+        self.assertRaises(ValueError, self.ipa.allocate, 'subnet1', 19)
 
     def test_allocate_everything_once(self):
         assert self.ipa.allocate('subnet1', 20).with_prefixlen == '10.30.0.0/20'
