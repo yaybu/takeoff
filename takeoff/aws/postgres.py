@@ -1,5 +1,5 @@
 from touchdown.core.resource import Resource
-from touchdown.core import serializers
+from touchdown.core import argument, serializers
 
 from ..serializers import Property
 from . import zone
