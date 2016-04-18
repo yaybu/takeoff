@@ -1,3 +1,5 @@
+import os
+
 from touchdown.core.resource import Resource
 from touchdown.core import plan, workspace
 
@@ -36,3 +38,6 @@ class BuildWorkspace(plan.Plan):
 
     def setup(self):
         self.workspace = workspace.Workspace()
+        self.project_folder = self.workspace.add_local_folder(name=os.getcwd())
+        project_config_file = self.project_folder.add_file(name="takeoff.cfg")
+        self.project_config = project_config_file.add_ini_file()
