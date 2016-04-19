@@ -26,26 +26,50 @@ You can find us in #yaybu on irc.oftc.net.
 
 Here is an example ``Takeofffile``::
 
-    aws = workspace.add_aws(
-        region='eu-west-1',
+    account = workspace.add_aws_account()
+
+    aws = account.add_environment(
+        name="production",
+        cidr_block="10.30.0.0/20"
     )
 
-    vpc = aws.add_virtual_private_cloud(name='example')
-    vpc.add_internet_gateway(name="internet")
-
-    example = vpc.add_subnet(
-        name='application',
-        cidr_block='192.168.0.0/24',
+    nat = aws.add_nat_gateway(
+        name="nat_gateway",
     )
 
-    asg = aws.add_autoscaling_group(
-        name='example',
-        launch_configuration=aws.add_launch_configuration(
-            name="example",
-            ami='ami-62366',
-            subnets=[example],
-        ),
+    load_balancer = aws.add_load_balancer(
+        name="load_balancer",
+        public=True,
     )
+
+    postgres = aws.add_postgres(
+        name="postgres",
+    )
+
+    redis = aws.add_redis(
+        name="redis",
+    )
+
+    web = aws.add_auto_scaling_group(
+        name="web",
+        load_balancers=[load_balancer],
+        user_data={
+            "DATABASE_URL": postgres.get_property("Url"),
+            "REDIS_URL": redis.get_property("Url"),
+        },
+    )
+
+    worker = aws.add_auto_scaling_group(
+        name="worker",
+        user_data={
+            "DATABASE_URL": postgres.get_property("Url"),
+            "REDIS_URL": redis.get_property("Url"),
+        },
+    )
+
+    #web_distribution = aws.add_web_distribution(
+    #    domains=['www.example.com'],
+    #)
 
 You can then apply this configuration with::
 
