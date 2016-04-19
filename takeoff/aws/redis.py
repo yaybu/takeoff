@@ -1,4 +1,3 @@
-from touchdown.core.resource import Resource
 from touchdown.core import argument
 from touchdown.core import serializers
 
@@ -23,7 +22,10 @@ class BuildWorkspace(zone.BuildWorkspace):
     def setup(self):
         super(BuildWorkspace, self).setup()
 
-        account = self.runner.get_service(self.resource.environment.account, self.name)
+        account = self.runner.get_service(
+            self.resource.environment.account,
+            self.name,
+        )
 
         self.cache = account.aws.add_replication_group(
             name=self.resource.name,
@@ -50,7 +52,10 @@ class BuildWorkspace(zone.BuildWorkspace):
             name='cache-no-connections',
             namespace="AWS/ElastiCache",
             metric="CurrConnections",
-            #dimensions=[{"name": "CacheClusterId", "value": "{}-shared".format(self.environment)}],
+            # dimensions=[{
+            #      "name": "CacheClusterId",
+            #      "value": "{}-shared".format(self.environment),
+            # }],
             statistic='Minimum',
             period=60,
             evaluation_periods=1,

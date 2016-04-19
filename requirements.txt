@@ -24,5 +24,9 @@ six==1.10.0
 git+git://github.com/yaybu/touchdown#egg=touchdown
 wheel==0.29.0
 
+flake8==2.5.4
+mccabe==0.4.0
+pep8==1.7.0
+pyflakes==1.0.0
 pytest-cov
 codecov

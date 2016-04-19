@@ -1,4 +1,4 @@
-from touchdown.core import serializers
+from touchdown.core import errors, serializers
 
 
 class Property(serializers.Serializer):

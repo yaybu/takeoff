@@ -1,7 +1,5 @@
-import netaddr
-
 from touchdown.core.resource import Resource
-from touchdown.core import argument, plan, serializers
+from touchdown.core import argument, plan
 from .environment import Environment
 
 
@@ -34,9 +32,13 @@ class BuildWorkspace(plan.Plan):
     def setup(self):
         parent = self.runner.get_service(self.resource.parent, self.name)
 
+        desc = 'Security group for all resources in subnet \'{}\''.format(
+            self.resource.name
+        )
+
         self.security_group = parent.vpc.add_security_group(
             name=self.resource.name,
-            description='Security group for all resources in subnet \'{}\''.format(self.resource.name),
+            description=desc,
         )
 
         self.subnets = []
@@ -63,11 +65,11 @@ class BuildWorkspace(plan.Plan):
     def setup_route_table(self, vpc, name):
         routes = []
 
-        #if self.public:
-        #    routes.append({
-        #        "cidr": "0.0.0.0/0",
-        #        "internet_gateway": self.environment.internet_gateway,
-        #    })
+        # if self.public:
+        #     routes.append({
+        #         "cidr": "0.0.0.0/0",
+        #         "internet_gateway": self.environment.internet_gateway,
+        #     })
 
         return vpc.add_route_table(
             name=name,

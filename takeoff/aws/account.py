@@ -1,3 +1,4 @@
+import os
 import json
 
 from touchdown.core.resource import Resource
@@ -19,8 +20,19 @@ class BuildWorkspace(plan.Plan):
     resource = Account
 
     def setup(self):
-        workspace = self.runner.get_service(self.resource.workspace, self.name).workspace
-        self.aws = workspace.add_aws()
+        ws = self.runner.get_service(self.resource.workspace, self.name)
+        self.aws = ws.workspace.add_aws(
+            region="eu-west-1",
+            access_key_id = "",
+            secret_access_key = "",
+            mfa_serial = "",
+        )
+
+        if True:
+            self.aws = self.aws.add_external_role(
+                name='',
+                arn='',
+            )
 
         self.setup_cloudtrail_logs()
         self.setup_cloudtrail()
