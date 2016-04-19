@@ -1,4 +1,3 @@
-from touchdown.core.resource import Resource
 from touchdown.core import argument, serializers
 
 from .elb import LoadBalancer
@@ -39,7 +38,7 @@ class BuildWorkspace(zone.BuildWorkspace):
         env = self.runner.get_service(self.resource.environment, self.name)
         account = self.runner.get_service(self.resource.environment.account, self.name)
 
-        user_data=serializers.Json(serializers.Dict(**self.resource.user_data.render(
+        user_data = serializers.Json(serializers.Dict(**self.resource.user_data.render(
             self.runner,
             self.resource.user_data
         )))

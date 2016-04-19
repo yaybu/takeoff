@@ -1,4 +1,3 @@
-from touchdown.core.resource import Resource
 from touchdown.core import argument
 
 from . import zone
@@ -18,7 +17,6 @@ class BuildWorkspace(zone.BuildWorkspace):
     def setup(self):
         super(BuildWorkspace, self).setup()
 
-        env = self.runner.get_service(self.resource.environment, self.name)
         account = self.runner.get_service(self.resource.environment.account, self.name)
 
         self.load_balancer = account.aws.add_load_balancer(

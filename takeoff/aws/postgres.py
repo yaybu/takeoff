@@ -1,4 +1,3 @@
-from touchdown.core.resource import Resource
 from touchdown.core import argument, serializers
 from touchdown.config import expressions
 

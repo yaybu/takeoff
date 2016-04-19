@@ -1,4 +1,3 @@
-import os
 import json
 
 from touchdown.core.resource import Resource
@@ -23,9 +22,9 @@ class BuildWorkspace(plan.Plan):
         ws = self.runner.get_service(self.resource.workspace, self.name)
         self.aws = ws.workspace.add_aws(
             region="eu-west-1",
-            access_key_id = "",
-            secret_access_key = "",
-            mfa_serial = "",
+            access_key_id="",
+            secret_access_key="",
+            mfa_serial="",
         )
 
         if True:
@@ -78,10 +77,13 @@ class BuildWorkspace(plan.Plan):
                             "arn:aws:iam::113285607260:root"
                         ]},
                         "Action": "s3:PutObject",
-                        "Resource": "arn:aws:s3:::{name}/AWSLogs/*".format(name=bucket_name),
-                        #"Resource": "arn:aws:s3:::{name}/AWSLogs/{account}/*".format(name=bucket_name, account=self.account),
+                        "Resource": "arn:aws:s3:::{name}/AWSLogs/*".format(
+                            name=bucket_name
+                        ),
                         "Condition": {
-                            "StringEquals": {"s3:x-amz-acl": "bucket-owner-full-control"}
+                            "StringEquals": {
+                                "s3:x-amz-acl": "bucket-owner-full-control"
+                            }
                         }
                     }
                 ],
@@ -108,10 +110,10 @@ class BuildWorkspace(plan.Plan):
                             "logs:CreateLogStream",
                         ],
                         "Resource": ["arn:aws:logs:*:*:log-group:cloudtrail.log:log-stream:*_CloudTrail_*"],
-                        #"Resource": ["arn:aws:logs:{location}:{account}:log-group:cloudtrail.log:log-stream:{account}_CloudTrail_{location}*".format(
-                        #    location=self.location,
-                        #    account=self.account,
-                        #)],
+                        # "Resource": ["arn:aws:logs:{location}:{account}:log-group:cloudtrail.log:log-stream:{account}_CloudTrail_{location}*".format(
+                        #     location=self.location,
+                        #     account=self.account,
+                        # )],
                     }],
                 },
             },
