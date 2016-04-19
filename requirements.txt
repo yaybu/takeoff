@@ -21,7 +21,7 @@ python-dateutil==2.4.2
 python-gnupg==0.3.8
 requests==2.9.1
 six==1.10.0
-git+git://github.com/yaybu/touchdown#egg=touchdown
+touchdown==0.9.0
 wheel==0.29.0
 
 flake8==2.5.4
