@@ -36,12 +36,17 @@ class BuildWorkspace(zone.BuildWorkspace):
         super(BuildWorkspace, self).setup()
 
         env = self.runner.get_service(self.resource.environment, self.name)
-        account = self.runner.get_service(self.resource.environment.account, self.name)
+        account = self.runner.get_service(
+            self.resource.environment.account,
+            self.name
+        )
 
-        user_data = serializers.Json(serializers.Dict(**self.resource.user_data.render(
-            self.runner,
-            self.resource.user_data
-        )))
+        user_data = serializers.Json(serializers.Dict(
+            **self.resource.user_data.render(
+                self.runner,
+                self.resource.user_data
+            )
+        ))
 
         self.auto_scaling_group = account.aws.add_auto_scaling_group(
             name=self.resource.name,
@@ -59,7 +64,8 @@ class BuildWorkspace(zone.BuildWorkspace):
             max_size=1,
             replacement_policy=self.resource.replacement_policy,
             load_balancers=[
-                self.runner.get_service(lb, self.name).load_balancer for lb in self.resource.load_balancers
+                self.runner.get_service(lb, self.name).load_balancer
+                for lb in self.resource.load_balancers
             ],
             subnets=self.subnets,
         )

@@ -20,7 +20,10 @@ class BuildWorkspace(plan.Plan):
     resource = Environment
 
     def setup(self):
-        workspace = self.runner.get_service(self.resource.account.workspace, self.name)
+        workspace = self.runner.get_service(
+            self.resource.account.workspace,
+            self.name
+        )
         parent = self.runner.get_service(self.resource.parent, self.name)
 
         self.keypair = parent.aws.add_keypair(

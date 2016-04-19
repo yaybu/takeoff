@@ -17,11 +17,19 @@ class BuildWorkspace(zone.BuildWorkspace):
     def setup(self):
         super(BuildWorkspace, self).setup()
 
-        account = self.runner.get_service(self.resource.environment.account, self.name)
+        account = self.runner.get_service(
+            self.resource.environment.account,
+            self.name
+        )
 
         self.load_balancer = account.aws.add_load_balancer(
             name='balancer',
-            listeners=[{"port": 443, "instance_port": 8043, "instance_protocol": "TCP", "protocol": "TCP"}],
+            listeners=[{
+                "port": 443,
+                "instance_port": 8043,
+                "instance_protocol": "TCP",
+                "protocol": "TCP"
+            }],
             subnets=self.subnets,
             security_groups=[self.security_group],
             health_check={
@@ -52,8 +60,8 @@ class BuildWorkspace(zone.BuildWorkspace):
             comparison_operator='LessThanThreshold',
         ))
 
-        # FIXME: Base period and evaluation on the ELB settings - this should help
-        # avoid false positives?
+        # FIXME: Base period and evaluation on the ELB settings - this should
+        # help avoid false positives?
         self.load_balancer.add_dependency(account.aws.add_alarm(
             name='balancer-unhealthy-instances',
             namespace="AWS/ELB",

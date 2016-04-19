@@ -25,7 +25,10 @@ def main(argv=None):
     args = parser.parse_args(argv or sys.argv[1:])
 
     if args.debug:
-        logging.basicConfig(level=logging.DEBUG, format="%(name)s: %(message)s")
+        logging.basicConfig(
+            level=logging.DEBUG,
+            format="%(name)s: %(message)s"
+        )
 
     console.interactive = not args.unattended
 

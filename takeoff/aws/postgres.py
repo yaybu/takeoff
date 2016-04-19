@@ -23,8 +23,19 @@ class BuildWorkspace(zone.BuildWorkspace):
         super(BuildWorkspace, self).setup()
 
         env = self.runner.get_service(self.resource.environment, self.name)
-        account = self.runner.get_service(self.resource.environment.account, self.name)
-        workspace = self.runner.get_service(self.resource.environment.account.workspace, self.name)
+        account = self.runner.get_service(
+            self.resource.environment.account,
+            self.name
+        )
+        workspace = self.runner.get_service(
+            self.resource.environment.account.workspace,
+            self.name
+        )
+
+        settings_section = ".".join([
+            env.resource.name,
+            self.resource.name,
+        ])
 
         self.database = account.aws.add_database(
             name=self.resource.name,
@@ -35,7 +46,7 @@ class BuildWorkspace(zone.BuildWorkspace):
             db_name=self.name,
             master_username="root",
             master_password=workspace.project_config.add_string(
-                name="{}.{}.password".format(env.resource.name, self.resource.name),
+                name="{}.password".format(settings_section),
                 default=expressions.pwgen(),
                 retain_default=True,
             ),

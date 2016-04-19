@@ -38,6 +38,11 @@ class BuildWorkspace(plan.Plan):
         self.setup_cloudtrail_metrics()
         self.setup_cloudtrail_alarms()
 
+    def get_cloudtrail_arn(self):
+        return (
+            "arn:aws:logs:*:*:log-group:cloudtrail.log:log-stream:*CloudTrail*"
+        )
+
     def setup_cloudtrail(self):
         bucket_name = "cloudtrail"
 
@@ -109,18 +114,17 @@ class BuildWorkspace(plan.Plan):
                             "logs:PutLogEvents",
                             "logs:CreateLogStream",
                         ],
-                        "Resource": ["arn:aws:logs:*:*:log-group:cloudtrail.log:log-stream:*_CloudTrail_*"],
-                        # "Resource": ["arn:aws:logs:{location}:{account}:log-group:cloudtrail.log:log-stream:{account}_CloudTrail_{location}*".format(
-                        #     location=self.location,
-                        #     account=self.account,
-                        # )],
+                        "Resource": [
+                            self.get_cloudtrail_arn(),
+                        ]
                     }],
                 },
             },
         )
 
+        # we call it this to match the one the AWS console creates
         self.aws.add_trail(
-            name="Default",  # we call it this to match the one the AWS console creates
+            name="Default",
             bucket=bucket,
             include_global=True,
             cwlogs_group=self.cloudtrail_log,
@@ -136,7 +140,14 @@ class BuildWorkspace(plan.Plan):
     def setup_cloudtrail_metrics(self):
         self.cloudtrail_log.add_filter(
             name='security_group_changes',
-            pattern='{ ($.eventName = AuthorizeSecurityGroupIngress) || ($.eventName = AuthorizeSecurityGroupEgress) || ($.eventName = RevokeSecurityGroupIngress) || ($.eventName = RevokeSecurityGroupEgress) || ($.eventName = CreateSecurityGroup) || ($.eventName = DeleteSecurityGroup) }',
+            pattern=(
+                '{ ($.eventName = AuthorizeSecurityGroupIngress) || '
+                '($.eventName = AuthorizeSecurityGroupEgress) || '
+                '($.eventName = RevokeSecurityGroupIngress) || '
+                '($.eventName = RevokeSecurityGroupEgress) || '
+                '($.eventName = CreateSecurityGroup) || '
+                '($.eventName = DeleteSecurityGroup) }'
+            ),
             transformations=[{
                 "name": "SecurityGroupChange",
                 "namespace": "CloudTrail",
@@ -146,7 +157,14 @@ class BuildWorkspace(plan.Plan):
 
         self.cloudtrail_log.add_filter(
             name='network_acl_changes',
-            pattern='{ ($.eventName = CreateNetworkAcl) || ($.eventName = CreateNetworkAclEntry) || ($.eventName = DeleteNetworkAcl) || ($.eventName = DeleteNetworkAclEntry) || ($.eventName = ReplaceNetworkAclEntry) || ($.eventName = ReplaceNetworkAclAssociation) }',
+            pattern=(
+                '{ ($.eventName = CreateNetworkAcl) || '
+                '($.eventName = CreateNetworkAclEntry) || '
+                '($.eventName = DeleteNetworkAcl) || '
+                '($.eventName = DeleteNetworkAclEntry) || '
+                '($.eventName = ReplaceNetworkAclEntry) || '
+                '($.eventName = ReplaceNetworkAclAssociation) }'
+            ),
             transformations=[{
                 "name": "NetworkACLChange",
                 "namespace": "CloudTrail",
@@ -156,7 +174,14 @@ class BuildWorkspace(plan.Plan):
 
         self.cloudtrail_log.add_filter(
             name='internet_gateway_changes',
-            pattern='{ ($.eventName = CreateCustomerGateway) || ($.eventName = DeleteCustomerGateway) || ($.eventName = AttachInternetGateway) || ($.eventName = CreateInternetGateway) || ($.eventName = DeleteInternetGateway) || ($.eventName = DetachInternetGateway) }',
+            pattern=(
+                '{ ($.eventName = CreateCustomerGateway) || '
+                '($.eventName = DeleteCustomerGateway) || '
+                '($.eventName = AttachInternetGateway) || '
+                '($.eventName = CreateInternetGateway) || '
+                '($.eventName = DeleteInternetGateway) || '
+                '($.eventName = DetachInternetGateway) }'
+            ),
             transformations=[{
                 "name": "InternetGatewayChange",
                 "namespace": "CloudTrail",
@@ -166,7 +191,13 @@ class BuildWorkspace(plan.Plan):
 
         self.cloudtrail_log.add_filter(
             name='cloudtrail_changes',
-            pattern='{ ($.eventName = CreateTrail) || ($.eventName = UpdateTrail) || ($.eventName = DeleteTrail) || ($.eventName = StartLogging) || ($.eventName = StopLogging) }',
+            pattern=(
+                '{ ($.eventName = CreateTrail) || '
+                '($.eventName = UpdateTrail) || '
+                '($.eventName = DeleteTrail) || '
+                '($.eventName = StartLogging) || '
+                '($.eventName = StopLogging) }'
+            ),
             transformations=[{
                 "name": "CloudTrailChange",
                 "namespace": "CloudTrail",
@@ -176,7 +207,10 @@ class BuildWorkspace(plan.Plan):
 
         self.cloudtrail_log.add_filter(
             name='signin_failures',
-            pattern='{ ($.eventName = ConsoleLogin) && ($.errorMessage = "Failed authentication") }',
+            pattern=(
+                '{ ($.eventName = ConsoleLogin) && '
+                '($.errorMessage = "Failed authentication") }'
+            ),
             transformations=[{
                 "name": "SigninFailure",
                 "namespace": "CloudTrail",
@@ -186,7 +220,10 @@ class BuildWorkspace(plan.Plan):
 
         self.cloudtrail_log.add_filter(
             name='authorization_failures',
-            pattern='{ ($.errorCode = "*UnauthorizedOperation") || ($.errorCode = "AccessDenied*") }',
+            pattern=(
+                '{ ($.errorCode = "*UnauthorizedOperation") || '
+                '($.errorCode = "AccessDenied*") }'
+            ),
             transformations=[{
                 "name": "AuthorizationFailure",
                 "namespace": "CloudTrail",
@@ -196,7 +233,24 @@ class BuildWorkspace(plan.Plan):
 
         self.cloudtrail_log.add_filter(
             name='iam_policy_changes',
-            pattern='{($.eventName=DeleteGroupPolicy)||($.eventName=DeleteRolePolicy)||($.eventName=DeleteUserPolicy)||($.eventName=PutGroupPolicy)||($.eventName=PutRolePolicy)||($.eventName=PutUserPolicy)||($.eventName=CreatePolicy)||($.eventName=DeletePolicy)||($.eventName=CreatePolicyVersion)||($.eventName=DeletePolicyVersion)||($.eventName=AttachRolePolicy)||($.eventName=DetachRolePolicy)||($.eventName=AttachUserPolicy)||($.eventName=DetachUserPolicy)||($.eventName=AttachGroupPolicy)||($.eventName=DetachGroupPolicy)}',
+            pattern=(
+                '{($.eventName=DeleteGroupPolicy)||'
+                '($.eventName=DeleteRolePolicy)||'
+                '($.eventName=DeleteUserPolicy)||'
+                '($.eventName=PutGroupPolicy)||'
+                '($.eventName=PutRolePolicy)||'
+                '($.eventName=PutUserPolicy)||'
+                '($.eventName=CreatePolicy)||'
+                '($.eventName=DeletePolicy)||'
+                '($.eventName=CreatePolicyVersion)||'
+                '($.eventName=DeletePolicyVersion)||'
+                '($.eventName=AttachRolePolicy)||'
+                '($.eventName=DetachRolePolicy)||'
+                '($.eventName=AttachUserPolicy)||'
+                '($.eventName=DetachUserPolicy)||'
+                '($.eventName=AttachGroupPolicy)||'
+                '($.eventName=DetachGroupPolicy)}'
+            ),
             transformations=[{
                 "name": "IamPolicyChange",
                 "namespace": "CloudTrail",
