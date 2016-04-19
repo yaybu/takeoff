@@ -1,0 +1,4 @@
+[run]
+source = takeoff
+omit =
+    takeoff/tests/*
