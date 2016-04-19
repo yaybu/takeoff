@@ -1,5 +1,6 @@
 from touchdown.core.resource import Resource
 from touchdown.core import argument, serializers
+from touchdown.config import expressions
 
 from ..serializers import Property
 from . import zone
@@ -24,6 +25,7 @@ class BuildWorkspace(zone.BuildWorkspace):
 
         env = self.runner.get_service(self.resource.environment, self.name)
         account = self.runner.get_service(self.resource.environment.account, self.name)
+        workspace = self.runner.get_service(self.resource.environment.account.workspace, self.name)
 
         self.database = account.aws.add_database(
             name=self.resource.name,
@@ -33,7 +35,11 @@ class BuildWorkspace(zone.BuildWorkspace):
             engine_version="9.3.6",
             db_name=self.name,
             master_username="root",
-            master_password="password",
+            master_password=workspace.project_config.add_string(
+                name="{}.{}.password".format(env.resource.name, self.resource.name),
+                default=expressions.pwgen(),
+                retain_default=True,
+            ),
             backup_retention_period=8,
             multi_az=True,
             auto_minor_version_upgrade=True,
