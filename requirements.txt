@@ -21,7 +21,7 @@ python-dateutil==2.4.2
 python-gnupg==0.3.8
 requests==2.9.1
 six==1.10.0
-git://github.com/yaybu/touchdown#egg=touchdown
+git+git://github.com/yaybu/touchdown#egg=touchdown
 wheel==0.29.0
 
 pytest-cov
